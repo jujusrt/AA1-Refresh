@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 2825085054969046199}
   m_Layer: 0
   m_Name: BulletPivot
-  m_TagString: Untagged
+  m_TagString: Bala
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
