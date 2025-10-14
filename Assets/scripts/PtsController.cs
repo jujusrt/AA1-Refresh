@@ -3,13 +3,14 @@ using TMPro;
 
 public class PtsController : MonoBehaviour
 {
+    public static PtsController modificarPts; // acceso global a la instancia
 
-    public static PtsController modificarPts;
+    public TextMeshProUGUI ptsText; // referencia al texto UI
+    private int ptsTotals = 0;      // acumulador de puntos
 
-    public TextMeshProUGUI ptsText;
-    private int ptsTotals = 0;
     void Start()
     {
+        // patrón simple de singleton: si no existe, me asigno; si existe, me destruyo
         if (modificarPts == null)
         {
             modificarPts = this;
@@ -22,15 +23,15 @@ public class PtsController : MonoBehaviour
 
     public void ModificarPts(int pts)
     {
-        ptsTotals += pts;
-        ModificarPtsUI();
+        ptsTotals += pts; // sumo puntos
+        ModificarPtsUI(); // refresco el texto
     }
 
     private void ModificarPtsUI()
     {
         if (ptsText != null)
         {
-            ptsText.text = $"{ptsTotals}";
+            ptsText.text = $"{ptsTotals}"; // pinto el total en la UI
         }
     }
 }

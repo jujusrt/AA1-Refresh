@@ -2,26 +2,63 @@ using UnityEngine;
 
 public class CameraController : MonoBehaviour
 {
-    public Transform pivot;
-    public float sensitivity_horizontal = 1;
-    public float sensitivity_vertical = 1;
-    InputSystem_Actions input;
+    [Header("Refs (asumo que la cámara es hija del pivot)")]
+    public Transform pivot;      // Empty en el centro de la pistola
+    public Transform cam;        // Main Camera (hija del pivot)
+
+    [Header("Sensibilidad")]
+    public float sensHoriz = 100f;  // A/D (yaw)
+    public float sensVert = 100f;  // W/S (pitch)
+
+
+    // Tu mapa del New Input System (ya lo tenías)
+    public InputSystem_Actions input;
+
+    // Estados internos
+    float yaw;         // rotación Y (horizontal)
+    float pitch;       // rotación X (vertical)
+    float distActual;  // distancia usada (Z local negativa)
+    float distObjetivo;
+
     void Start()
     {
+        // Inicializa input y toma la rotación inicial del pivot
         input = new InputSystem_Actions();
         input.Enable();
-        Cursor.lockState = CursorLockMode.Locked;
+
+        Vector3 e = pivot.localEulerAngles;
+        yaw = e.y;
+        pitch = e.x;
     }
 
-    // Update is called once per frame
     void Update()
     {
-        Vector2 look = input.Player.Look.ReadValue<Vector2>();
+        // WASD desde la action "Move" (x=A/D, y=W/S)
+        Vector2 move = input.Player.Move.ReadValue<Vector2>();
 
-        Debug.Log(look);
+        // Suma de rotaciones con sensibilidad y deltaTime
+        yaw += move.x * sensHoriz * Time.deltaTime;
+        pitch -= move.y * sensVert * Time.deltaTime;
 
-        pivot.transform.localEulerAngles = pivot.transform.localEulerAngles
-            + new Vector3(look.y * sensitivity_vertical, look.x * sensitivity_horizontal, 0)
-            * Time.deltaTime;
+        // Aplica la rotación al pivot (la cámara orbita por ser hija)
+        pivot.localRotation = Quaternion.Euler(pitch, yaw, 0f);
+    }
+
+    void LateUpdate()
+    {
+        // Posicionado de cámara tras rotar el pivot
+        if (!cam || !pivot)
+        {
+            return;
+        }
+        else
+        {
+            distActual = distObjetivo;
+        }
+
+        // Cámara en -Z local y mirando al pivot
+        cam.localPosition = new Vector3(0f, 0f, -distActual);
+        cam.LookAt(pivot.position, Vector3.up);
     }
 }
+
